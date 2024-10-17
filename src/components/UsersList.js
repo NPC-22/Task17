@@ -24,10 +24,18 @@ function UsersList() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Helper function to check token expiration
+  const isTokenExpired = () => {
+    const tokenExpiry = localStorage.getItem('tokenExpiry');
+    return !tokenExpiry || new Date().getTime() > Number(tokenExpiry);
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (!token) {
+    if (!token || isTokenExpired()) {
       alert('Session expired. Please log in again.');
+      localStorage.removeItem('token');
+      localStorage.removeItem('tokenExpiry');
       navigate('/');
     } else {
       fetchUsers(page);
@@ -87,6 +95,7 @@ function UsersList() {
 
   const handleSignOut = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('tokenExpiry');
     alert('You have been logged out.');
     navigate('/');
   };
